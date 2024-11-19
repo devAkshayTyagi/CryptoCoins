@@ -23,19 +23,3 @@ fun Context.showToast(message: String) {
     Toast.makeText(this, message, Toast.LENGTH_LONG)
         .show()
 }
-
-fun SearchView.getQueryTextChangeStateFlow(): StateFlow<String> {
-    val query = MutableStateFlow("")
-    setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
-        override fun onQueryTextSubmit(query: String?): Boolean {
-            return true
-        }
-
-        override fun onQueryTextChange(newText: String): Boolean {
-            query.value = newText
-            return true
-        }
-    })
-    return query
-}

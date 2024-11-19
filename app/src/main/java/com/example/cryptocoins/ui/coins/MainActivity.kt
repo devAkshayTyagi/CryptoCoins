@@ -3,9 +3,9 @@ package com.example.cryptocoins.ui.coins
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.forEach
@@ -19,7 +19,6 @@ import com.example.cryptocoins.R
 import com.example.cryptocoins.data.model.Coin
 import com.example.cryptocoins.databinding.ActivityMainBinding
 import com.example.cryptocoins.ui.UiState
-import com.example.cryptocoins.utils.getQueryTextChangeStateFlow
 import com.example.cryptocoins.utils.hideView
 import com.example.cryptocoins.utils.showToast
 import com.example.cryptocoins.utils.showView
@@ -38,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var coinsAdapter: CoinsAdapter
 
     private lateinit var binding: ActivityMainBinding
+    private val selectedFilteredList = mutableListOf<String>()
+    private var queryText = ""
 
     companion object {
         fun getStartingIntent(context: Context): Intent {
@@ -62,15 +63,27 @@ class MainActivity : AppCompatActivity() {
         collectFlows()
         initClickListeners()
         coinViewModel.fetchCoins()
-        coinViewModel.setUpSearchStateFlow(binding.searchView.getQueryTextChangeStateFlow())
-
     }
 
     private fun initClickListeners() {
-        binding.filterChipGroup.forEach { child ->
-            (child as? Chip)?.setOnCheckedChangeListener { _, _ ->
-                registerFilterChanged()
+        with(binding){
+            filterChipGroup.forEach { child ->
+                (child as? Chip)?.setOnCheckedChangeListener { _, _ ->
+                    registerFilterChanged()
+                }
             }
+
+            searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return true
+                }
+
+                override fun onQueryTextChange(newText: String): Boolean {
+                    queryText = newText
+                    coinViewModel.applyFiltersAndSearch(selectedFilteredList,newText)
+                    return true
+                }
+            })
         }
     }
 
@@ -114,7 +127,6 @@ class MainActivity : AppCompatActivity() {
                         is UiState.Error -> {
                             binding.progressCircular.hideView()
                             this@MainActivity.showToast(it.message)
-                            Log.e("Error",it.message)
                         }
                     }
                 }
@@ -123,14 +135,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun registerFilterChanged() {
+        selectedFilteredList.clear()
         val ids = binding.filterChipGroup.checkedChipIds
         val titles = mutableListOf<String>()
 
         ids.forEach { id ->
             titles.add(binding.filterChipGroup.findViewById<Chip>(id).tag.toString())
+            selectedFilteredList.add(binding.filterChipGroup.findViewById<Chip>(id).tag.toString())
         }
 
-        coinViewModel.fetchFilteredCoins(titles.toList())
+        coinViewModel.applyFiltersAndSearch(selectedFilteredList.toList(),queryText)
     }
 
     private fun showEmptyState() {
