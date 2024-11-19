@@ -1,6 +1,6 @@
 package com.example.cryptocoins.di
 
-import com.example.cryptocoins.data.INetworkService
+import com.example.cryptocoins.data.api.INetworkService
 import com.example.cryptocoins.utils.AppConstants
 import dagger.Module
 import dagger.Provides
