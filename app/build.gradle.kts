@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -33,6 +35,10 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
+
 }
 
 dependencies {
@@ -42,6 +48,21 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    //hilt
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.hilt.android)
+
+    //retrofit
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson.converter)
+
+    //lifecycle view model
+    implementation(libs.view.model)
+
+    //glide
+    implementation(libs.glide)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
