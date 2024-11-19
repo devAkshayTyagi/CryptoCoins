@@ -13,4 +13,8 @@ class AppResourceProvider (private val context: Context) {
     fun getDrawable(@DrawableRes id: Int): Drawable {
         return ContextCompat.getDrawable(context, id)!!
     }
+
+    fun getColor(id: Int): Int {
+        return ContextCompat.getColor(context, id)
+    }
 }

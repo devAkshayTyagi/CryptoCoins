@@ -11,5 +11,6 @@ data class Coin(
     @SerializedName("is_active")
     val isActive: Boolean,
     val type: String,
-    var icon: Drawable
+    var icon: Drawable,
+    var itemBackGroundColor: Int
 )

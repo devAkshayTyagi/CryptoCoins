@@ -32,9 +32,6 @@ class CoinViewModel @Inject constructor(private val coinRepository: CoinReposito
     private var _uiStateCoins = MutableStateFlow<UiState<List<Coin>>>(UiState.Loading)
     val uiStateCoins: StateFlow<UiState<List<Coin>>> = _uiStateCoins
 
-    private var _searchStateCoins = MutableStateFlow<UiState<List<Coin>>>(UiState.Loading)
-    val searchStateCoins: StateFlow<UiState<List<Coin>>> = _searchStateCoins
-
     private var coinList = listOf<Coin>()
 
     fun fetchCoins() {
@@ -45,7 +42,7 @@ class CoinViewModel @Inject constructor(private val coinRepository: CoinReposito
                     _uiStateCoins.value = UiState.Error(it.toString())
                 }.map { coins ->
                     coins.map { coin ->
-                        coin.copy(icon = getCoinIcon(coin))
+                        coin.copy(icon = setCoinIcon(coin), itemBackGroundColor = setItemBackGroundColor(coin))
                     }
                 }.collect {
                     _uiStateCoins.value = UiState.Success(it)
@@ -59,7 +56,7 @@ class CoinViewModel @Inject constructor(private val coinRepository: CoinReposito
         viewModelScope.launch {
             searchFlow.debounce(AppConstants.DEBOUNCE_TIME).filter { query ->
                 if (query.isEmpty()) {
-                    _searchStateCoins.value = UiState.Success(coinList)
+                    _uiStateCoins.value = UiState.Success(coinList)
                     return@filter false
                 } else {
                     return@filter true
@@ -74,12 +71,30 @@ class CoinViewModel @Inject constructor(private val coinRepository: CoinReposito
                         emit(filteredList)
                     }
             }.flowOn(Dispatchers.Default).collect {
-                    _searchStateCoins.value = UiState.Success(it)
+                    _uiStateCoins.value = UiState.Success(it)
             }
         }
     }
 
-    private fun getCoinIcon(coin: Coin): Drawable {
+    fun fetchFilteredCoins(filterByList: List<String>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val filteredList = coinList.filter { coin ->
+                filterByList.all { filter ->
+                    when (filter) {
+                        AppConstants.ACTIVE_COINS -> coin.isActive
+                        AppConstants.IN_ACTIVE_COINS -> coin.isActive.not()
+                        AppConstants.ONLY_COINS -> coin.type == AppConstants.COIN
+                        AppConstants.ONLY_TOKENS -> coin.type == AppConstants.TOKEN
+                        AppConstants.NEW_COINS -> coin.isNew
+                        else -> true // Default to include if filter is unknown
+                    }
+                }
+            }
+            _uiStateCoins.value = UiState.Success(filteredList)
+        }
+    }
+
+    private fun setCoinIcon(coin: Coin): Drawable {
         return when (coin.type) {
             AppConstants.COIN -> {
                 if (coin.isActive) resourceProvider.getDrawable(R.drawable.ic_enabled_coin)
@@ -87,5 +102,11 @@ class CoinViewModel @Inject constructor(private val coinRepository: CoinReposito
             }
             else -> resourceProvider.getDrawable(R.drawable.ic_token)
         }
+    }
+
+    private fun setItemBackGroundColor(coin: Coin): Int {
+        return if (coin.isActive) {
+            resourceProvider.getColor(R.color.white)
+        }else resourceProvider.getColor(R.color.light_gray)
     }
 }

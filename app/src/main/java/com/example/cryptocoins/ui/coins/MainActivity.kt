@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.forEach
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -22,9 +23,11 @@ import com.example.cryptocoins.utils.getQueryTextChangeStateFlow
 import com.example.cryptocoins.utils.hideView
 import com.example.cryptocoins.utils.showToast
 import com.example.cryptocoins.utils.showView
+import com.google.android.material.chip.Chip
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -57,9 +60,18 @@ class MainActivity : AppCompatActivity() {
 
         setUpUi()
         collectFlows()
+        initClickListeners()
         coinViewModel.fetchCoins()
         coinViewModel.setUpSearchStateFlow(binding.searchView.getQueryTextChangeStateFlow())
 
+    }
+
+    private fun initClickListeners() {
+        binding.filterChipGroup.forEach { child ->
+            (child as? Chip)?.setOnCheckedChangeListener { _, _ ->
+                registerFilterChanged()
+            }
+        }
     }
 
     private fun setUpUi() {
@@ -83,33 +95,14 @@ class MainActivity : AppCompatActivity() {
                         is UiState.Loading -> {
                             binding.progressCircular.showView()
                             binding.rvCoins.hideView()
+                            binding.searchView.hideView()
+                            binding.filterChipGroup.hideView()
                         }
 
                         is UiState.Success -> {
                             binding.progressCircular.hideView()
-                            renderList(it.data)
-                            binding.rvCoins.showView()
-                        }
-
-                        is UiState.Error -> {
-                            binding.progressCircular.hideView()
-                            this@MainActivity.showToast(it.message)
-                            Log.e("Error",it.message)
-                        }
-                    }
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                coinViewModel.searchStateCoins.collect {
-                    when (it) {
-                        is UiState.Loading -> {
-                            binding.rvCoins.hideView()
-                        }
-
-                        is UiState.Success -> {
+                            binding.searchView.showView()
+                            binding.filterChipGroup.showView()
                             if (it.data.isEmpty() && binding.searchView.query.isEmpty().not()){
                                 showEmptyState()
                             }else{
@@ -119,6 +112,7 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         is UiState.Error -> {
+                            binding.progressCircular.hideView()
                             this@MainActivity.showToast(it.message)
                             Log.e("Error",it.message)
                         }
@@ -126,6 +120,17 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun registerFilterChanged() {
+        val ids = binding.filterChipGroup.checkedChipIds
+        val titles = mutableListOf<String>()
+
+        ids.forEach { id ->
+            titles.add(binding.filterChipGroup.findViewById<Chip>(id).tag.toString())
+        }
+
+        coinViewModel.fetchFilteredCoins(titles.toList())
     }
 
     private fun showEmptyState() {

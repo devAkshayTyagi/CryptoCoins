@@ -16,6 +16,7 @@ class CoinsAdapter(private val coinList: ArrayList<Coin>) :
             coin: Coin
         ) {
             with(binding){
+                itemView.setBackgroundColor(coin.itemBackGroundColor)
                 tvName.text = coin.name
                 tvSymbol.text = coin.symbol
 

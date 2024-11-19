@@ -3,4 +3,16 @@
     <string name="search_hint">Search Coins</string>
     <string name="empty_search_title">No match found</string>
     <string name="empty_search_desc">Please update your search query</string>
+    <string name="active_coins">Active Coins</string>
+    <string name="inactive_coins">Inactive Coins</string>
+    <string name="only_tokens">Only Tokens</string>
+    <string name="only_coins">Only Coins</string>
+    <string name="new_coins">New Coins</string>
+
+    <!--filter chip tags-->
+    <string name="tag_active_coins">active_coins</string>
+    <string name="tag_in_active_coins">in_active_coins</string>
+    <string name="tag_only_coins">only_coins</string>
+    <string name="tag_new_coins">new_coins</string>
+    <string name="tag_only_tokens">only_tokens</string>
 </resources>

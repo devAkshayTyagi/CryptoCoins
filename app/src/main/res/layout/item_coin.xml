@@ -12,6 +12,7 @@
         android:textSize="16sp"
         android:paddingVertical="2dp"
         android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:textSize="14sp"
         android:paddingVertical="2dp"
+        android:layout_marginStart="16dp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp"
         android:textColor="@android:color/black"
@@ -36,7 +38,7 @@
         android:layout_width="30dp"
         android:layout_height="30dp"
         tools:srcCompat="@drawable/ic_enabled_coin"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -47,6 +49,7 @@
         android:layout_height="25dp"
         android:visibility="gone"
         tools:visibility="visible"
+        android:layout_marginEnd="16dp"
         app:srcCompat="@drawable/ic_new"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

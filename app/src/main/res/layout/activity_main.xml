@@ -20,9 +20,11 @@
         android:id="@+id/rv_coins"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginHorizontal="16dp"
+        android:paddingBottom="120dp"
+        android:clipToPadding="false"
         android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/search_view" />
 
@@ -60,5 +62,58 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.chip.ChipGroup
+        android:id="@+id/filter_chip_group"
+        android:layout_width="match_parent"
+        android:background="@color/gray"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_active_coins"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:tag="@string/tag_active_coins"
+            android:layout_height="wrap_content"
+            android:text="@string/active_coins" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_inactive_coins"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:tag="@string/tag_in_active_coins"
+            android:layout_height="wrap_content"
+            android:text="@string/inactive_coins" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_only_tokens"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:tag="@string/tag_only_tokens"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/only_tokens" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_only_coins"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:tag="@string/tag_only_coins"
+            android:layout_height="wrap_content"
+            android:text="@string/only_coins" />
+
+        <com.google.android.material.chip.Chip
+            android:id="@+id/chip_new_coins"
+            style="@style/Widget.MaterialComponents.Chip.Filter"
+            android:layout_width="wrap_content"
+            android:tag="@string/tag_new_coins"
+            android:layout_height="wrap_content"
+            android:text="@string/new_coins" />
+
+    </com.google.android.material.chip.ChipGroup>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
