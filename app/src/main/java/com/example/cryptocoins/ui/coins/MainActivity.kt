@@ -18,6 +18,7 @@ import com.example.cryptocoins.R
 import com.example.cryptocoins.data.model.Coin
 import com.example.cryptocoins.databinding.ActivityMainBinding
 import com.example.cryptocoins.ui.UiState
+import com.example.cryptocoins.utils.getQueryTextChangeStateFlow
 import com.example.cryptocoins.utils.hideView
 import com.example.cryptocoins.utils.showToast
 import com.example.cryptocoins.utils.showView
@@ -56,6 +57,9 @@ class MainActivity : AppCompatActivity() {
 
         setUpUi()
         collectFlows()
+        coinViewModel.fetchCoins()
+        coinViewModel.setUpSearchStateFlow(binding.searchView.getQueryTextChangeStateFlow())
+
     }
 
     private fun setUpUi() {
@@ -95,6 +99,48 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                coinViewModel.searchStateCoins.collect {
+                    when (it) {
+                        is UiState.Loading -> {
+                            binding.rvCoins.hideView()
+                        }
+
+                        is UiState.Success -> {
+                            if (it.data.isEmpty() && binding.searchView.query.isEmpty().not()){
+                                showEmptyState()
+                            }else{
+                                hideEmptyState()
+                                renderList(it.data)
+                            }
+                        }
+
+                        is UiState.Error -> {
+                            this@MainActivity.showToast(it.message)
+                            Log.e("Error",it.message)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showEmptyState() {
+        with(binding){
+            tvEmptyTitle.showView()
+            tvEmptyDesc.showView()
+            rvCoins.hideView()
+        }
+    }
+
+    private fun hideEmptyState() {
+        with(binding){
+            tvEmptyTitle.hideView()
+            tvEmptyDesc.hideView()
+            rvCoins.showView()
         }
     }
 

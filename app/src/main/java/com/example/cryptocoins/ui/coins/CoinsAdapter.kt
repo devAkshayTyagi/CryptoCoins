@@ -44,8 +44,7 @@ class CoinsAdapter(private val coinList: ArrayList<Coin>) :
     override fun getItemCount(): Int = coinList.size
 
     fun addData(list: List<Coin>) {
+        coinList.clear()
         coinList.addAll(list)
     }
-
-
 }
