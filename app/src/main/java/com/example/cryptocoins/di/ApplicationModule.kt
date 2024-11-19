@@ -1,10 +1,13 @@
 package com.example.cryptocoins.di
 
+import android.content.Context
 import com.example.cryptocoins.data.api.INetworkService
 import com.example.cryptocoins.utils.AppConstants
+import com.example.cryptocoins.utils.AppResourceProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -44,6 +47,12 @@ class ApplicationModule {
             .addConverterFactory(gsonConverterFactory)
             .build()
             .create(INetworkService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAppResourceProvider(@ApplicationContext context: Context): AppResourceProvider {
+        return AppResourceProvider(context)
     }
 
 }

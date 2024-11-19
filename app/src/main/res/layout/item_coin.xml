@@ -3,7 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="8dp"
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.appcompat.widget.AppCompatTextView
@@ -12,6 +11,7 @@
         android:layout_height="wrap_content"
         android:textSize="16sp"
         android:paddingVertical="2dp"
+        android:layout_marginTop="8dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -24,9 +24,31 @@
         android:textSize="14sp"
         android:paddingVertical="2dp"
         android:textStyle="bold"
+        android:layout_marginBottom="8dp"
         android:textColor="@android:color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        app:layout_constraintBottom_toBottomOf="parent"
         tools:text="Bitcoin" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_coin"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        tools:srcCompat="@drawable/ic_enabled_coin"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_new"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:srcCompat="@drawable/ic_new"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptocoins.data.model.Coin
 import com.example.cryptocoins.databinding.ItemCoinBinding
+import com.example.cryptocoins.utils.invisible
+import com.example.cryptocoins.utils.showView
 
 class CoinsAdapter(private val coinList: ArrayList<Coin>) :
     RecyclerView.Adapter<CoinsAdapter.CoinViewHolder>() {
@@ -13,13 +15,15 @@ class CoinsAdapter(private val coinList: ArrayList<Coin>) :
         fun bind(
             coin: Coin
         ) {
-            binding.tvName.text = coin.name
-            binding.tvSymbol.text = coin.symbol
+            with(binding){
+                tvName.text = coin.name
+                tvSymbol.text = coin.symbol
 
-            /*Glide.with(binding.iv.context)
-                .load(imageUrl)
-                .placeholder(android.R.color.background_dark)
-                .into(binding.iv)*/
+                ivCoin.setImageDrawable(coin.icon)
+
+                if (coin.isNew) ivNew.showView()
+                else ivNew.invisible()
+            }
         }
 
     }

@@ -1,5 +1,6 @@
 package com.example.cryptocoins.data.model
 
+import android.graphics.drawable.Drawable
 import com.google.gson.annotations.SerializedName
 
 data class Coin(
@@ -10,4 +11,5 @@ data class Coin(
     @SerializedName("is_active")
     val isActive: Boolean,
     val type: String,
+    var icon: Drawable
 )

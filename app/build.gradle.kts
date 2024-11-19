@@ -60,9 +60,6 @@ dependencies {
     //lifecycle view model
     implementation(libs.view.model)
 
-    //glide
-    implementation(libs.glide)
-
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
