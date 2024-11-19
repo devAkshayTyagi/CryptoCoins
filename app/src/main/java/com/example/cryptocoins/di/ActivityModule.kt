@@ -1,5 +1,6 @@
 package com.example.cryptocoins.di
 
+import com.example.cryptocoins.ui.coins.CoinsAdapter
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,9 +10,9 @@ import dagger.hilt.android.scopes.ActivityScoped
 @Module
 @InstallIn(ActivityComponent::class)
 class ActivityModule {
-    //TODO
-   /* @ActivityScoped
+
+    @ActivityScoped
     @Provides
-    fun providesCoinsAdapter() = CoinsAdapter(ArrayList())*/
+    fun providesCoinsAdapter() = CoinsAdapter(ArrayList())
 
 }

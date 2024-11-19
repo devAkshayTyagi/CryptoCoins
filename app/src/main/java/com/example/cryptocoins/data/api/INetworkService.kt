@@ -4,6 +4,6 @@ import com.example.cryptocoins.data.model.Coin
 import retrofit2.http.GET
 
 interface INetworkService {
-    @GET
+    @GET("/")
     suspend fun getCoins() : List<Coin>
 }
