@@ -143,7 +143,8 @@ class MainActivity : AppCompatActivity() {
             selectedFilteredList.add(binding.filterChipGroup.findViewById<Chip>(id).tag.toString())
         }
 
-        coinViewModel.applyFiltersAndSearch(selectedFilteredList.toList(),queryText)
+        binding.searchView.setQuery("",false)
+        coinViewModel.applyFiltersAndSearch(selectedFilteredList.toList(),"")
     }
 
     private fun showEmptyState() {

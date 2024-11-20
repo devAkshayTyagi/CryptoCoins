@@ -43,7 +43,7 @@ class CoinViewModel @Inject constructor(
 
     private var coinList = listOf<Coin>()
     private val searchQuery = MutableStateFlow("")
-    private var filteredList: List<Coin> = coinList
+   // private var filteredList: List<Coin> = coinList
     private fun checkInternetConnection(): Boolean = networkHelper.isNetworkConnected()
 
     init {
@@ -51,34 +51,6 @@ class CoinViewModel @Inject constructor(
             fetchCoins()
         } else {
             fetchCoinsFromDB()
-        }
-        setUpSearchFlow()
-    }
-
-    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    private fun setUpSearchFlow() {
-        //Search on the filter list
-        viewModelScope.launch {
-            searchQuery.debounce(AppConstants.DEBOUNCE_TIME).filter { query ->
-                if (query.isEmpty()) {
-                    _uiStateCoins.value = UiState.Success(filteredList)
-                    return@filter false
-                } else {
-                    return@filter true
-                }
-            }.distinctUntilChanged()
-                .flatMapLatest { query ->
-                    flow {
-                        val searchList = filteredList.filter { coin ->
-                            coin.name.contains(query, ignoreCase = true) ||
-                                    coin.symbol.contains(query, ignoreCase = true)
-                        }
-                        emit(searchList)
-                    }
-                }.flowOn(dispatcherProvider.default)
-                .collect {
-                    _uiStateCoins.value = UiState.Success(it)
-                }
         }
     }
 
@@ -103,11 +75,13 @@ class CoinViewModel @Inject constructor(
     }
 
 
+    @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
     fun applyFiltersAndSearch(filterByList: List<String>, query: String) {
         viewModelScope.launch(dispatcherProvider.mainImmediate) {
+            searchQuery.value = query
             withContext(dispatcherProvider.default){
                 //Filter on base of chip selected
-                filteredList = coinList.filter { coin ->
+                val filteredList = coinList.filter { coin ->
                     filterByList.all { filter ->
                         when (filter) {
                             AppConstants.ACTIVE_COINS -> coin.isActive
@@ -119,11 +93,27 @@ class CoinViewModel @Inject constructor(
                         }
                     }
                 }
+
+                searchQuery.debounce(AppConstants.DEBOUNCE_TIME).filter { query ->
+                    if (query.isEmpty()) {
+                        _uiStateCoins.value = UiState.Success(filteredList)
+                        return@filter false
+                    } else {
+                        return@filter true
+                    }
+                }.distinctUntilChanged()
+                    .flatMapLatest { query ->
+                        flow {
+                            val searchList = filteredList.filter { coin ->
+                                coin.name.contains(query, ignoreCase = true) ||
+                                        coin.symbol.contains(query, ignoreCase = true)
+                            }
+                            emit(searchList)
+                        }
+                    }.collect {
+                        _uiStateCoins.value = UiState.Success(it)
+                    }
             }
-
-            _uiStateCoins.value = UiState.Success(filteredList)
-
-            searchQuery.value = query
         }
     }
 
