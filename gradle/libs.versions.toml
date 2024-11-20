@@ -14,6 +14,12 @@ hilt = "2.50"
 retrofit = "2.11.0"
 lifecycleVersion = "2.8.7"
 roomVersion = "2.6.1"
+mockito = "5.3.1"
+kotlinxCoroutinesTest = "1.7.3"
+coreTesting = "2.2.0"
+turbine = "0.12.1"
+
+
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +38,10 @@ view-model = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", v
 androidx-room-compiler = { group = "androidx.room",name ="room-compiler", version.ref = "roomVersion" }
 androidx-room-ktx = { group = "androidx.room",name="room-ktx", version.ref = "roomVersion" }
 androidx-room-runtime = { group = "androidx.room", name="room-runtime",version.ref = "roomVersion" }
+mockito-core = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+androidx-core-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "coreTesting" }
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesTest" }
+turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 
 
 [plugins]

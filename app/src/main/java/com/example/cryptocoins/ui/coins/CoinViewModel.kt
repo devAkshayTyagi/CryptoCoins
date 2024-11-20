@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.text.contains
 import kotlin.text.isEmpty
@@ -103,17 +104,19 @@ class CoinViewModel @Inject constructor(
 
 
     fun applyFiltersAndSearch(filterByList: List<String>, query: String) {
-        viewModelScope.launch(dispatcherProvider.default) {
-            //Filter on base of chip selected
-             filteredList = coinList.filter { coin ->
-                filterByList.all { filter ->
-                    when (filter) {
-                        AppConstants.ACTIVE_COINS -> coin.isActive
-                        AppConstants.IN_ACTIVE_COINS -> coin.isActive.not()
-                        AppConstants.ONLY_COINS -> coin.type == AppConstants.COIN
-                        AppConstants.ONLY_TOKENS -> coin.type == AppConstants.TOKEN
-                        AppConstants.NEW_COINS -> coin.isNew
-                        else -> true // Default to include if filter is unknown
+        viewModelScope.launch(dispatcherProvider.mainImmediate) {
+            withContext(dispatcherProvider.default){
+                //Filter on base of chip selected
+                filteredList = coinList.filter { coin ->
+                    filterByList.all { filter ->
+                        when (filter) {
+                            AppConstants.ACTIVE_COINS -> coin.isActive
+                            AppConstants.IN_ACTIVE_COINS -> coin.isActive.not()
+                            AppConstants.ONLY_COINS -> coin.type == AppConstants.COIN
+                            AppConstants.ONLY_TOKENS -> coin.type == AppConstants.TOKEN
+                            AppConstants.NEW_COINS -> coin.isNew
+                            else -> true // Default to include if filter is unknown
+                        }
                     }
                 }
             }
@@ -124,9 +127,9 @@ class CoinViewModel @Inject constructor(
         }
     }
 
-    private fun fetchCoinsFromDB() {
-        viewModelScope.launch {
-            coinRepository.getArticlesDirectlyFromDB()
+     fun fetchCoinsFromDB() {
+        viewModelScope.launch(dispatcherProvider.mainImmediate) {
+            coinRepository.getCoinsDirectlyFromDB()
                 .flowOn(dispatcherProvider.io)
                 .catch { e ->
                     _uiStateCoins.value = UiState.Error(e.toString())
@@ -137,8 +140,7 @@ class CoinViewModel @Inject constructor(
                             itemBackGroundColor = backgroundProvider.setBackgroundColor(coin)
                         )
                     }
-                }
-                .collect {
+                }.collect {
                     _uiStateCoins.value = UiState.Success(it)
                     coinList = it
                 }

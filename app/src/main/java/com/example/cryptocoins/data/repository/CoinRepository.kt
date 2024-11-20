@@ -19,8 +19,8 @@ class CoinRepository @Inject constructor(
     fun getCoins(): Flow<List<Coin>> {
         return flow {
             emit(iNetworkService.getCoins())
-        }.map {
-            it.map { apiCoin -> apiCoin.toCoinEntity()}
+        }.map {  apiCoins ->
+            apiCoins.map { apiCoin -> apiCoin.toCoinEntity()}
         }.flatMapConcat { coins ->
             flow { emit(databaseService.deleteAllAndInsertAll((coins))) }
         }.flatMapConcat {
@@ -28,7 +28,7 @@ class CoinRepository @Inject constructor(
         }
     }
 
-    fun getArticlesDirectlyFromDB(): Flow<List<Coin>> {
+    fun getCoinsDirectlyFromDB(): Flow<List<Coin>> {
         return databaseService.getCoins()
     }
 }
