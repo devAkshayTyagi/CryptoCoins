@@ -7,7 +7,12 @@ import com.example.cryptocoins.data.local.AppDatabase
 import com.example.cryptocoins.data.local.AppDatabaseService
 import com.example.cryptocoins.data.local.DatabaseService
 import com.example.cryptocoins.utils.AppConstants
-import com.example.cryptocoins.utils.AppResourceProvider
+import com.example.cryptocoins.utils.CoinIconProvider
+import com.example.cryptocoins.utils.CoinIconProviderImpl
+import com.example.cryptocoins.utils.CoinViewBackgroundProvider
+import com.example.cryptocoins.utils.CoinViewBackgroundProviderImpl
+import com.example.cryptocoins.utils.DefaultDispatcherProvider
+import com.example.cryptocoins.utils.DispatcherProvider
 import com.example.cryptocoins.utils.NetworkHelper
 import com.example.cryptocoins.utils.NetworkHelperImpl
 import dagger.Module
@@ -57,12 +62,6 @@ class ApplicationModule {
 
     @Provides
     @Singleton
-    fun provideAppResourceProvider(@ApplicationContext context: Context): AppResourceProvider {
-        return AppResourceProvider(context)
-    }
-
-    @Provides
-    @Singleton
     fun provideNetworkHelper(@ApplicationContext context: Context): NetworkHelper {
         return NetworkHelperImpl(context)
     }
@@ -89,5 +88,21 @@ class ApplicationModule {
     fun provideDatabaseService(appDatabase: AppDatabase): DatabaseService {
         return AppDatabaseService(appDatabase)
     }
+
+    @Provides
+    @Singleton
+    fun providesIconProvider() : CoinIconProvider {
+        return CoinIconProviderImpl()
+    }
+
+    @Provides
+    @Singleton
+    fun providesBackGroundProvider(@ApplicationContext context: Context) : CoinViewBackgroundProvider {
+        return CoinViewBackgroundProviderImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDispatcher(): DispatcherProvider = DefaultDispatcherProvider()
 
 }

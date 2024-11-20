@@ -2,15 +2,15 @@ package com.example.cryptocoins.ui.coins
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cryptocoins.R
 import com.example.cryptocoins.data.local.entity.Coin
 import com.example.cryptocoins.data.repository.CoinRepository
 import com.example.cryptocoins.ui.UiState
 import com.example.cryptocoins.utils.AppConstants
-import com.example.cryptocoins.utils.AppResourceProvider
+import com.example.cryptocoins.utils.CoinIconProvider
+import com.example.cryptocoins.utils.CoinViewBackgroundProvider
+import com.example.cryptocoins.utils.DispatcherProvider
 import com.example.cryptocoins.utils.NetworkHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -31,8 +31,10 @@ import kotlin.text.isEmpty
 @HiltViewModel
 class CoinViewModel @Inject constructor(
     private val coinRepository: CoinRepository,
-    private val resourceProvider: AppResourceProvider,
     private val networkHelper: NetworkHelper,
+    private val iconProvider: CoinIconProvider,
+    private val backgroundProvider: CoinViewBackgroundProvider,
+    private val dispatcherProvider: DispatcherProvider
 ) : ViewModel() {
 
     private var _uiStateCoins = MutableStateFlow<UiState<List<Coin>>>(UiState.Loading)
@@ -40,6 +42,7 @@ class CoinViewModel @Inject constructor(
 
     private var coinList = listOf<Coin>()
     private val searchQuery = MutableStateFlow("")
+    private var filteredList: List<Coin> = coinList
     private fun checkInternetConnection(): Boolean = networkHelper.isNetworkConnected()
 
     init {
@@ -48,47 +51,13 @@ class CoinViewModel @Inject constructor(
         } else {
             fetchCoinsFromDB()
         }
-    }
-
-    private fun fetchCoins() {
-        viewModelScope.launch {
-            coinRepository.getCoins()
-                .flowOn(Dispatchers.IO)
-                .catch {
-                    _uiStateCoins.value = UiState.Error(it.toString())
-                }.map { coins ->
-                    coins.map { coin ->
-                        coin.copy(
-                            icon = setCoinIconRes(coin),
-                            itemBackGroundColor = setItemBackGroundColor(coin)
-                        )
-                    }
-                }.collect {
-                    _uiStateCoins.value = UiState.Success(it)
-                    coinList = it
-                }
-        }
+        setUpSearchFlow()
     }
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    fun applyFiltersAndSearch(filterByList: List<String>, query: String) {
-        searchQuery.value = query
-        viewModelScope.launch(Dispatchers.Default) {
-            //Filter on base of chip selected
-            val filteredList = coinList.filter { coin ->
-                filterByList.all { filter ->
-                    when (filter) {
-                        AppConstants.ACTIVE_COINS -> coin.isActive
-                        AppConstants.IN_ACTIVE_COINS -> coin.isActive.not()
-                        AppConstants.ONLY_COINS -> coin.type == AppConstants.COIN
-                        AppConstants.ONLY_TOKENS -> coin.type == AppConstants.TOKEN
-                        AppConstants.NEW_COINS -> coin.isNew
-                        else -> true // Default to include if filter is unknown
-                    }
-                }
-            }
-
-            //Search on the filter list
+    private fun setUpSearchFlow() {
+        //Search on the filter list
+        viewModelScope.launch {
             searchQuery.debounce(AppConstants.DEBOUNCE_TIME).filter { query ->
                 if (query.isEmpty()) {
                     _uiStateCoins.value = UiState.Success(filteredList)
@@ -105,23 +74,67 @@ class CoinViewModel @Inject constructor(
                         }
                         emit(searchList)
                     }
-                }.collect {
+                }.flowOn(dispatcherProvider.default)
+                .collect {
                     _uiStateCoins.value = UiState.Success(it)
                 }
+        }
+    }
+
+    private fun fetchCoins() {
+        viewModelScope.launch {
+            coinRepository.getCoins()
+                .flowOn(dispatcherProvider.io)
+                .catch {
+                    _uiStateCoins.value = UiState.Error(it.toString())
+                }.map { coins ->
+                    coins.map { coin ->
+                        coin.copy(
+                            icon = iconProvider.setIcon(coin),
+                            itemBackGroundColor = backgroundProvider.setBackgroundColor(coin)
+                        )
+                    }
+                }.collect {
+                    _uiStateCoins.value = UiState.Success(it)
+                    coinList = it
+                }
+        }
+    }
+
+
+    fun applyFiltersAndSearch(filterByList: List<String>, query: String) {
+        viewModelScope.launch(dispatcherProvider.default) {
+            //Filter on base of chip selected
+             filteredList = coinList.filter { coin ->
+                filterByList.all { filter ->
+                    when (filter) {
+                        AppConstants.ACTIVE_COINS -> coin.isActive
+                        AppConstants.IN_ACTIVE_COINS -> coin.isActive.not()
+                        AppConstants.ONLY_COINS -> coin.type == AppConstants.COIN
+                        AppConstants.ONLY_TOKENS -> coin.type == AppConstants.TOKEN
+                        AppConstants.NEW_COINS -> coin.isNew
+                        else -> true // Default to include if filter is unknown
+                    }
+                }
+            }
+
+            _uiStateCoins.value = UiState.Success(filteredList)
+
+            searchQuery.value = query
         }
     }
 
     private fun fetchCoinsFromDB() {
         viewModelScope.launch {
             coinRepository.getArticlesDirectlyFromDB()
-                .flowOn(Dispatchers.IO)
+                .flowOn(dispatcherProvider.io)
                 .catch { e ->
                     _uiStateCoins.value = UiState.Error(e.toString())
                 }.map { coins ->
                     coins.map { coin ->
                         coin.copy(
-                            icon = setCoinIconRes(coin),
-                            itemBackGroundColor = setItemBackGroundColor(coin)
+                            icon = iconProvider.setIcon(coin),
+                            itemBackGroundColor = backgroundProvider.setBackgroundColor(coin)
                         )
                     }
                 }
@@ -130,22 +143,5 @@ class CoinViewModel @Inject constructor(
                     coinList = it
                 }
         }
-    }
-
-    private fun setCoinIconRes(coin: Coin): Int {
-        return when (coin.type) {
-            AppConstants.COIN -> {
-                if (coin.isActive) R.drawable.ic_enabled_coin
-                else R.drawable.ic_disabled_coin
-            }
-
-            else -> R.drawable.ic_token
-        }
-    }
-
-    private fun setItemBackGroundColor(coin: Coin): Int {
-        return if (coin.isActive) {
-            resourceProvider.getColor(R.color.white)
-        } else resourceProvider.getColor(R.color.light_gray)
     }
 }
