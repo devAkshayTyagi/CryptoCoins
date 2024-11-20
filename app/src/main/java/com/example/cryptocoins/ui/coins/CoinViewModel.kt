@@ -1,14 +1,14 @@
 package com.example.cryptocoins.ui.coins
 
-import android.graphics.drawable.Drawable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cryptocoins.R
-import com.example.cryptocoins.data.model.Coin
+import com.example.cryptocoins.data.local.entity.Coin
 import com.example.cryptocoins.data.repository.CoinRepository
 import com.example.cryptocoins.ui.UiState
 import com.example.cryptocoins.utils.AppConstants
 import com.example.cryptocoins.utils.AppResourceProvider
+import com.example.cryptocoins.utils.NetworkHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,7 +31,8 @@ import kotlin.text.isEmpty
 @HiltViewModel
 class CoinViewModel @Inject constructor(
     private val coinRepository: CoinRepository,
-    private val resourceProvider: AppResourceProvider
+    private val resourceProvider: AppResourceProvider,
+    private val networkHelper: NetworkHelper,
 ) : ViewModel() {
 
     private var _uiStateCoins = MutableStateFlow<UiState<List<Coin>>>(UiState.Loading)
@@ -39,8 +40,17 @@ class CoinViewModel @Inject constructor(
 
     private var coinList = listOf<Coin>()
     private val searchQuery = MutableStateFlow("")
+    private fun checkInternetConnection(): Boolean = networkHelper.isNetworkConnected()
 
-    fun fetchCoins() {
+    init {
+        if (checkInternetConnection()) {
+            fetchCoins()
+        } else {
+            fetchCoinsFromDB()
+        }
+    }
+
+    private fun fetchCoins() {
         viewModelScope.launch {
             coinRepository.getCoins()
                 .flowOn(Dispatchers.IO)
@@ -49,7 +59,7 @@ class CoinViewModel @Inject constructor(
                 }.map { coins ->
                     coins.map { coin ->
                         coin.copy(
-                            icon = setCoinIcon(coin),
+                            icon = setCoinIconRes(coin),
                             itemBackGroundColor = setItemBackGroundColor(coin)
                         )
                     }
@@ -101,15 +111,35 @@ class CoinViewModel @Inject constructor(
         }
     }
 
+    private fun fetchCoinsFromDB() {
+        viewModelScope.launch {
+            coinRepository.getArticlesDirectlyFromDB()
+                .flowOn(Dispatchers.IO)
+                .catch { e ->
+                    _uiStateCoins.value = UiState.Error(e.toString())
+                }.map { coins ->
+                    coins.map { coin ->
+                        coin.copy(
+                            icon = setCoinIconRes(coin),
+                            itemBackGroundColor = setItemBackGroundColor(coin)
+                        )
+                    }
+                }
+                .collect {
+                    _uiStateCoins.value = UiState.Success(it)
+                    coinList = it
+                }
+        }
+    }
 
-    private fun setCoinIcon(coin: Coin): Drawable {
+    private fun setCoinIconRes(coin: Coin): Int {
         return when (coin.type) {
             AppConstants.COIN -> {
-                if (coin.isActive) resourceProvider.getDrawable(R.drawable.ic_enabled_coin)
-                else resourceProvider.getDrawable(R.drawable.ic_disabled_coin)
+                if (coin.isActive) R.drawable.ic_enabled_coin
+                else R.drawable.ic_disabled_coin
             }
 
-            else -> resourceProvider.getDrawable(R.drawable.ic_token)
+            else -> R.drawable.ic_token
         }
     }
 

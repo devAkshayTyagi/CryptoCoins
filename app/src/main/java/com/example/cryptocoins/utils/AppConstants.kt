@@ -10,4 +10,6 @@ object AppConstants {
     const val ONLY_COINS = "only_coins"
     const val NEW_COINS = "new_coins"
     const val ONLY_TOKENS = "only_tokens"
+    const val DATABASE_NAME = "only_tokens"
+    const val DATABASE_VERSION = 1
 }

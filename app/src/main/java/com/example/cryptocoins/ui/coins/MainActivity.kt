@@ -16,7 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.cryptocoins.R
-import com.example.cryptocoins.data.model.Coin
+import com.example.cryptocoins.data.local.entity.Coin
 import com.example.cryptocoins.databinding.ActivityMainBinding
 import com.example.cryptocoins.ui.UiState
 import com.example.cryptocoins.utils.hideView
@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
         setUpUi()
         collectFlows()
         initClickListeners()
-        coinViewModel.fetchCoins()
     }
 
     private fun initClickListeners() {

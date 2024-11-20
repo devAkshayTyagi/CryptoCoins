@@ -1,9 +1,15 @@
 package com.example.cryptocoins.di
 
 import android.content.Context
+import androidx.room.Room
 import com.example.cryptocoins.data.api.INetworkService
+import com.example.cryptocoins.data.local.AppDatabase
+import com.example.cryptocoins.data.local.AppDatabaseService
+import com.example.cryptocoins.data.local.DatabaseService
 import com.example.cryptocoins.utils.AppConstants
 import com.example.cryptocoins.utils.AppResourceProvider
+import com.example.cryptocoins.utils.NetworkHelper
+import com.example.cryptocoins.utils.NetworkHelperImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,6 +59,35 @@ class ApplicationModule {
     @Singleton
     fun provideAppResourceProvider(@ApplicationContext context: Context): AppResourceProvider {
         return AppResourceProvider(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNetworkHelper(@ApplicationContext context: Context): NetworkHelper {
+        return NetworkHelperImpl(context)
+    }
+
+    @DatabaseName
+    @Provides
+    fun provideDatabaseName(): String = AppConstants.DATABASE_NAME
+
+    @Provides
+    @Singleton
+    fun provideAppDatabase(
+        @ApplicationContext context: Context,
+        @DatabaseName databaseName: String
+    ): AppDatabase {
+        return Room.databaseBuilder(
+            context,
+            AppDatabase::class.java,
+            databaseName
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDatabaseService(appDatabase: AppDatabase): DatabaseService {
+        return AppDatabaseService(appDatabase)
     }
 
 }

@@ -3,7 +3,7 @@ package com.example.cryptocoins.ui.coins
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.cryptocoins.data.model.Coin
+import com.example.cryptocoins.data.local.entity.Coin
 import com.example.cryptocoins.databinding.ItemCoinBinding
 import com.example.cryptocoins.utils.invisible
 import com.example.cryptocoins.utils.showView
@@ -20,7 +20,7 @@ class CoinsAdapter(private val coinList: ArrayList<Coin>) :
                 tvName.text = coin.name
                 tvSymbol.text = coin.symbol
 
-                ivCoin.setImageDrawable(coin.icon)
+                ivCoin.setImageResource(coin.icon)
 
                 if (coin.isNew) ivNew.showView()
                 else ivNew.invisible()

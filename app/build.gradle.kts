@@ -60,6 +60,11 @@ dependencies {
     //lifecycle view model
     implementation(libs.view.model)
 
+    //room db
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
